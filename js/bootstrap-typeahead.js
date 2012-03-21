@@ -52,6 +52,8 @@
       this.$menu.css({
         top: pos.top + pos.height
       , left: pos.left
+      , "max-height": "" + (24 * this.options.items) + "px"
+      , overflow: "auto"
       })
 
       this.$menu.show()
@@ -86,7 +88,7 @@
         return this.shown ? this.hide() : this
       }
 
-      return this.render(items.slice(0, this.options.items)).show()
+      return this.render(items).show()
     }
 
   , matcher: function (item) {
@@ -136,7 +138,27 @@
         next = $(this.$menu.find('li')[0])
       }
 
+      this.scrollMenu(next);
       next.addClass('active')
+    }
+
+  , scrollMenu: function (active) {
+      var activeTop = active.position().top
+        , menuHeight = this.$menu.outerHeight()
+        , shim = (menuHeight - this.$menu.height()) / 2
+
+      if (activeTop >= menuHeight - 2 * active.outerHeight()) {
+        this.$menu.scrollTop(activeTop +
+                             this.$menu.scrollTop() -
+                             menuHeight +
+                             2 * active.outerHeight() +
+                             shim)
+      } else if (activeTop <= active.outerHeight()) {
+        this.$menu.scrollTop(this.$menu.scrollTop() -
+                             active.outerHeight() -
+                             Math.abs(activeTop) -
+                             shim)
+      }
     }
 
   , prev: function (event) {
@@ -147,6 +169,7 @@
         prev = this.$menu.find('li').last()
       }
 
+      this.scrollMenu(prev);
       prev.addClass('active')
     }
 
